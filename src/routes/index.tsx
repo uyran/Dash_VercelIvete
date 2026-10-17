@@ -1,18 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import {
   AssembleiaPE,
   ComposicaoAssembleiaPE,
@@ -263,7 +254,7 @@ function BarraShape(arg: unknown) {
   const bw = background?.width ?? Math.abs(width);
   const bh = background?.height ?? height;
   return (
-    <g style={{ cursor: "pointer" }}>
+    <g>
       <rect x={bx} y={by} width={bw} height={bh} fill="transparent" pointerEvents="all" />
       <rect
         x={Math.min(x, x + width)}
@@ -280,7 +271,6 @@ function BarraShape(arg: unknown) {
 
 function TickCidade({
   payload,
-  onSelect,
   x = 0,
   y = 0,
   textAnchor = "end",
@@ -289,7 +279,6 @@ function TickCidade({
   className,
 }: {
   payload?: { value?: unknown };
-  onSelect?: (c: string) => void;
   x?: number;
   y?: number;
   textAnchor?: "start" | "middle" | "end";
@@ -308,27 +297,13 @@ function TickCidade({
       fill={fill}
       fontSize={fontSize}
       className={className}
-      style={{ cursor: "pointer" }}
-      onClick={() => onSelect?.(label)}
     >
       {nomeCidade(label)}
     </text>
   );
 }
 
-function Chart({
-  title,
-  data,
-  color,
-  onPick,
-  selected,
-}: {
-  title: string;
-  data: City[];
-  color: string;
-  onPick: (c: string) => void;
-  selected: string | null;
-}) {
+function Chart({ title, data, color }: { title: string; data: City[]; color: string }) {
   const [page, setPage] = useState(0);
   const porPagina = 15;
   const lastPage = Math.max(0, Math.ceil(data.length / porPagina) - 1);
@@ -338,9 +313,6 @@ function Chart({
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="mb-1 font-semibold">{title}</h3>
-          <p className="text-xs text-muted-foreground">
-            Clique na barra ou na cidade para ver os votos por zona
-          </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <Button
@@ -386,25 +358,16 @@ function Chart({
             width={125}
             fontSize={10}
             interval={0}
-            tick={<TickCidade onSelect={onPick} />}
+            tick={<TickCidade />}
           />
           <Tooltip content={<VoteTooltip />} />
           <Bar
             dataKey="diff"
             name="Diferença"
+            fill={color}
             isAnimationActive={false}
-            cursor="pointer"
             shape={BarraShape}
-            onClick={(d: { cidade?: string }) => d.cidade && onPick(d.cidade)}
-          >
-            {visible.map((d) => (
-              <Cell
-                key={d.cidade}
-                fill={color}
-                fillOpacity={selected && selected !== d.cidade ? 0.4 : 1}
-              />
-            ))}
-          </Bar>
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -413,18 +376,9 @@ function Chart({
 
 function Dashboard() {
   const { cities, t22, t26 } = useData();
-  const [sel, setSel] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
   const [sort, setSort] = useState<"cidade-asc" | "votos-desc">("cidade-asc");
   const todas = filter === TODAS;
-  const zonaRef = useRef<HTMLElement>(null);
-  const pick = (c: string) => {
-    setSel(c);
-    const el = zonaRef.current;
-    if (!el) return;
-    el.focus({ preventScroll: true });
-    el.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  };
 
   const up = cities.filter((c) => c.diff >= 0).sort((a, b) => b.diff - a.diff);
   const down = cities.filter((c) => c.diff < 0).sort((a, b) => a.diff - b.diff);
@@ -437,19 +391,6 @@ function Dashboard() {
   const top15 = [...cities].sort((a, b) => b.v26 - a.v26).slice(0, 15);
   const top15total = top15.reduce((s, c) => s + c.v26, 0);
   const top15share = top15total / t26;
-
-  const zonas = useMemo(() => {
-    if (!sel) return [];
-    const m = new Map<number, { zona: number; v22: number; v26: number }>();
-    for (const [c, z, ano, v] of rows) {
-      if (c !== sel) continue;
-      const o = m.get(z) ?? { zona: z, v22: 0, v26: 0 };
-      if (ano === 2022) o.v22 += v;
-      else o.v26 += v;
-      m.set(z, o);
-    }
-    return [...m.values()].sort((a, b) => a.zona - b.zona);
-  }, [sel]);
 
   const list = useMemo(() => {
     const base =
@@ -559,56 +500,12 @@ function Dashboard() {
           title="Cidades com maior crescimento numérico de votos"
           data={up}
           color="var(--success)"
-          onPick={pick}
-          selected={sel}
         />
         <Chart
           title="Cidades com maior queda numérica de votos"
           data={down}
           color="var(--danger)"
-          onPick={pick}
-          selected={sel}
         />
-      </section>
-
-      <section
-        ref={zonaRef}
-        tabIndex={-1}
-        className="min-w-0 rounded-xl border bg-card p-5 shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <h3 className="text-[2rem] font-semibold">Votos por zona {sel ? `— ${sel}` : ""}</h3>
-        {!sel ? (
-          <p className="mt-2 text-sm text-muted-foreground">
-            Selecione uma cidade em um dos gráficos acima.
-          </p>
-        ) : (
-          <div className="max-h-[260px] overflow-auto">
-            <table className="mt-3 w-full min-w-[400px] table-fixed text-sm bg-nav/10">
-              <thead className="sticky top-0 z-10 bg-nav">
-                <tr className="text-center text-nav-foreground">
-                  <th className="py-2 px-4 font-semibold">Zona</th>
-                  <th className="py-2 px-4 font-semibold">2022</th>
-                  <th className="py-2 px-4 font-semibold">2026</th>
-                  <th className="py-2 px-4 font-semibold">Diferença</th>
-                </tr>
-              </thead>
-              <tbody>
-                {zonas.map((z) => (
-                  <tr key={z.zona} className="border-b text-center">
-                    <td className="py-2 px-4">{z.zona}</td>
-                    <td className="py-2 px-4">{fmt(z.v22)}</td>
-                    <td className="py-2 px-4">{fmt(z.v26)}</td>
-                    <td
-                      className={`py-2 px-4 font-semibold ${z.v26 - z.v22 >= 0 ? "text-success" : "text-danger"}`}
-                    >
-                      {fmt(z.v26 - z.v22)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
       </section>
 
       <section className="rounded-xl border bg-card p-5 shadow-sm">
@@ -665,11 +562,7 @@ function Dashboard() {
                 </tr>
               ) : (
                 list.map((c) => (
-                  <tr
-                    key={c.cidade}
-                    className="cursor-pointer border-b text-center hover:bg-nav/20"
-                    onClick={() => setSel(c.cidade)}
-                  >
+                  <tr key={c.cidade} className="border-b text-center hover:bg-nav/20">
                     <td className="py-2 px-4">{c.cidade}</td>
                     <td className="py-2 px-4">{fmt(c.v22)}</td>
                     <td className="py-2 px-4">{fmt(c.v26)}</td>
