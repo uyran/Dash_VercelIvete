@@ -52,6 +52,8 @@ const pct = (a: number, b: number) =>
 type City = { cidade: string; v22: number; v26: number; diff: number; pctText: string };
 type CityBase = Omit<City, "pctText">;
 
+const TODAS = "__TODAS__";
+
 const pctText = (c: CityBase) =>
   c.v22 === 0 ? (c.v26 > 0 ? "novo" : "—") : `${c.diff > 0 ? "+" : ""}${pct(c.v22, c.v26)}`;
 
@@ -414,6 +416,7 @@ function Dashboard() {
   const [sel, setSel] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
   const [sort, setSort] = useState<"cidade-asc" | "votos-desc">("cidade-asc");
+  const todas = filter === TODAS;
   const zonaRef = useRef<HTMLElement>(null);
   const pick = (c: string) => {
     setSel(c);
@@ -449,7 +452,8 @@ function Dashboard() {
   }, [sel]);
 
   const list = useMemo(() => {
-    const base = filter ? cities.filter((c) => c.cidade === filter) : cities;
+    const base =
+      filter === TODAS ? cities : filter ? cities.filter((c) => c.cidade === filter) : [];
     const sorted = [...base];
     if (sort === "cidade-asc") {
       sorted.sort((a, b) => a.cidade.localeCompare(b.cidade, "pt-BR"));
@@ -578,24 +582,24 @@ function Dashboard() {
             Selecione uma cidade em um dos gráficos acima.
           </p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="mt-3 w-full text-sm">
-              <thead>
-                <tr className="border-b text-left text-muted-foreground">
-                  <th className="py-2">Zona</th>
-                  <th className="text-right">2022</th>
-                  <th className="text-right">2026</th>
-                  <th className="text-right">Diferença</th>
+          <div className="max-h-[260px] overflow-auto">
+            <table className="mt-3 w-full min-w-[400px] table-fixed text-sm bg-nav/10">
+              <thead className="sticky top-0 z-10 bg-nav">
+                <tr className="text-center text-nav-foreground">
+                  <th className="py-2 px-4 font-semibold">Zona</th>
+                  <th className="py-2 px-4 font-semibold">2022</th>
+                  <th className="py-2 px-4 font-semibold">2026</th>
+                  <th className="py-2 px-4 font-semibold">Diferença</th>
                 </tr>
               </thead>
               <tbody>
                 {zonas.map((z) => (
-                  <tr key={z.zona} className="border-b">
-                    <td className="py-2">{z.zona}</td>
-                    <td className="text-right">{fmt(z.v22)}</td>
-                    <td className="text-right">{fmt(z.v26)}</td>
+                  <tr key={z.zona} className="border-b text-center">
+                    <td className="py-2 px-4">{z.zona}</td>
+                    <td className="py-2 px-4">{fmt(z.v22)}</td>
+                    <td className="py-2 px-4">{fmt(z.v26)}</td>
                     <td
-                      className={`text-right font-semibold ${z.v26 - z.v22 >= 0 ? "text-success" : "text-danger"}`}
+                      className={`py-2 px-4 font-semibold ${z.v26 - z.v22 >= 0 ? "text-success" : "text-danger"}`}
                     >
                       {fmt(z.v26 - z.v22)}
                     </td>
@@ -616,11 +620,14 @@ function Dashboard() {
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                className="rounded-md border-2 border-nav/40 bg-nav/10 px-4 py-2 text-sm font-medium shadow-sm"
+                className="w-64 rounded-md border-2 border-nav/40 bg-nav/10 px-4 py-2 text-sm font-medium shadow-sm"
               >
-                <option value="">Todas as cidades</option>
+                <option value="">Selecione uma cidade</option>
+                <option value={TODAS}>Todas as cidades</option>
                 {cities.map((c) => (
-                  <option key={c.cidade}>{c.cidade}</option>
+                  <option key={c.cidade} value={c.cidade}>
+                    {c.cidade}
+                  </option>
                 ))}
               </select>
             </label>
@@ -628,9 +635,9 @@ function Dashboard() {
               <span className="whitespace-nowrap">Ordenar</span>
               <select
                 value={sort}
-                disabled={filter !== ""}
+                disabled={!todas}
                 onChange={(e) => setSort(e.target.value as "cidade-asc" | "votos-desc")}
-                className="rounded-md border-2 border-nav/40 bg-nav/10 px-4 py-2 text-sm font-medium shadow-sm disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground"
+                className="w-64 rounded-md border-2 border-nav/40 bg-nav/10 px-4 py-2 text-sm font-medium shadow-sm disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground"
               >
                 <option value="cidade-asc">Cidade (A → Z)</option>
                 <option value="votos-desc">Votos 2026 (maior → menor)</option>
@@ -638,36 +645,44 @@ function Dashboard() {
             </label>
           </div>
         </div>
-        <div className="max-h-[500px] overflow-auto">
-          <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-card">
-              <tr className="border-b text-left text-muted-foreground">
-                <th className="py-2">Cidade</th>
-                <th className="py-2 pr-8 text-right">2022</th>
-                <th className="py-2 pl-2 text-right">2026</th>
-                <th className="py-2 pr-1 text-right">Dif.</th>
-                <th className="py-2 text-right">%</th>
+        <div className="max-h-[410px] overflow-auto">
+          <table className="w-full text-sm bg-nav/10">
+            <thead className="sticky top-0 z-10 bg-nav">
+              <tr className="text-center text-nav-foreground">
+                <th className="py-2 px-4 font-semibold">Cidade</th>
+                <th className="py-2 px-4 font-semibold">2022</th>
+                <th className="py-2 px-4 font-semibold">2026</th>
+                <th className="py-2 px-4 font-semibold">Diferença</th>
+                <th className="py-2 px-4 font-semibold">%</th>
               </tr>
             </thead>
             <tbody>
-              {list.map((c) => (
-                <tr
-                  key={c.cidade}
-                  className="cursor-pointer border-b hover:bg-muted"
-                  onClick={() => setSel(c.cidade)}
-                >
-                  <td className="py-2">{c.cidade}</td>
-                  <td className="py-2 pr-8 text-right">{fmt(c.v22)}</td>
-                  <td className="py-2 pl-2 text-right">{fmt(c.v26)}</td>
-                  <td
-                    className={`py-2 pr-1 text-right font-semibold ${c.diff >= 0 ? "text-success" : "text-danger"}`}
-                  >
-                    {c.diff > 0 ? "+" : ""}
-                    {fmt(c.diff)}
+              {list.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-6 pl-4 text-left text-muted-foreground">
+                    Selecione uma cidade para consultar a votação
                   </td>
-                  <td className="py-2 text-right text-muted-foreground">{pct(c.v22, c.v26)}</td>
                 </tr>
-              ))}
+              ) : (
+                list.map((c) => (
+                  <tr
+                    key={c.cidade}
+                    className="cursor-pointer border-b text-center hover:bg-nav/20"
+                    onClick={() => setSel(c.cidade)}
+                  >
+                    <td className="py-2 px-4">{c.cidade}</td>
+                    <td className="py-2 px-4">{fmt(c.v22)}</td>
+                    <td className="py-2 px-4">{fmt(c.v26)}</td>
+                    <td
+                      className={`py-2 px-4 font-semibold ${c.diff >= 0 ? "text-success" : "text-danger"}`}
+                    >
+                      {c.diff > 0 ? "+" : ""}
+                      {fmt(c.diff)}
+                    </td>
+                    <td className="py-2 px-4 text-muted-foreground">{pct(c.v22, c.v26)}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

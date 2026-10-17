@@ -45,7 +45,16 @@ const CIDADES: Cidade[] = Object.entries(locais)
 const POR_NOME = new Map(CIDADES.map((c) => [c.nome, c]));
 const INICIAL = CIDADES.reduce((best, c) => (c.total > best.total ? c : best));
 
-type Ordem = "local" | "votos" | "endereco";
+type Ordem = "local" | "votos" | "endereco" | "bairro";
+
+const BTN_TOPO =
+  "inline-flex w-[120px] justify-center rounded-lg border-2 px-3.5 py-2 text-sm font-semibold transition-all duration-150 hover:-translate-y-[1px] active:translate-y-[3px] peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2";
+const BTN_TOPO_ON =
+  "border-card bg-card text-nav shadow-[0_4px_0_0_rgba(0,0,0,0.18)] hover:shadow-[0_5px_0_0_rgba(0,0,0,0.18)] active:shadow-[0_1px_0_0_rgba(0,0,0,0.18)]";
+const BTN_TOPO_OFF =
+  "border-nav-foreground/45 bg-nav-foreground/10 text-nav-foreground shadow-[0_4px_0_0_rgba(0,0,0,0.3)] hover:shadow-[0_5px_0_0_rgba(0,0,0,0.3)] active:shadow-[0_1px_0_0_rgba(0,0,0,0.3)]";
+const BTN_TOPO_ESTATICO =
+  "inline-flex w-[120px] justify-center rounded-lg border-2 border-nav-foreground/45 bg-nav-foreground/10 px-3.5 py-2 text-sm font-semibold text-nav-foreground shadow-[0_4px_0_0_rgba(0,0,0,0.3)]";
 
 export function LocaisZona() {
   const [cidade, setCidade] = useState(INICIAL.nome);
@@ -58,6 +67,11 @@ export function LocaisZona() {
     const ls = [...zona.locais];
     if (ordem === "local") ls.sort((a, b) => a[0].localeCompare(b[0], "pt-BR"));
     else if (ordem === "endereco") ls.sort((a, b) => a[1].localeCompare(b[1], "pt-BR"));
+    else if (ordem === "bairro")
+      ls.sort(
+        (a, b) =>
+          (a[7] || "").localeCompare(b[7] || "", "pt-BR") || a[0].localeCompare(b[0], "pt-BR"),
+      );
     else ls.sort((a, b) => b[2] - a[2] || a[0].localeCompare(b[0], "pt-BR"));
     return ls;
   }, [zona, ordem]);
@@ -72,30 +86,10 @@ export function LocaisZona() {
   const totais = TOTAIS[cidade] ?? { v22: 0, v26: 0 };
   const dif = totais.v26 - totais.v22;
 
-  const banner = (
-    <div className="rounded-xl border bg-background p-3 text-sm shadow-md">
-      <p className="text-muted-foreground">
-        Total de votos em 2022: <strong className="text-foreground">{fmt(totais.v22)}</strong>
-      </p>
-      <p className="text-muted-foreground">
-        Total de votos em 2026: <strong className="text-foreground">{fmt(totais.v26)}</strong>
-      </p>
-      <hr className="my-2" />
-      <p className="text-muted-foreground">
-        Diferença:{" "}
-        <strong className={dif >= 0 ? "text-success" : "text-danger"}>
-          {dif > 0 ? "+" : ""}
-          {fmt(dif)} ({pct(totais.v22, totais.v26)})
-        </strong>
-      </p>
-    </div>
-  );
-
   return (
     <section className="relative rounded-xl border bg-card p-5 shadow-sm">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-[2rem] font-semibold">Votos por zona e local de votação em 2026</h3>
-        <div className="hidden md:block">{banner}</div>
       </div>
 
       <div className="mb-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
@@ -103,26 +97,28 @@ export function LocaisZona() {
           value={cidade}
           onChange={(e) => trocar(e.target.value)}
           aria-label="Escolher cidade"
-          className="rounded-md border bg-background px-3 py-2 text-sm"
+          className="w-64 rounded-md border-2 border-nav/40 bg-nav/10 px-4 py-2 text-sm font-medium shadow-sm"
         >
           {CIDADES.map((c) => (
             <option key={c.nome}>{c.nome}</option>
           ))}
         </select>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-md border bg-background px-3 py-2 text-sm">
+          <span className="text-foreground">Nº de Zona(s): {info.zonas.length}</span>
           <span className="text-foreground">
-            Nº de Zona(s): <strong>{info.zonas.length}</strong>
+            Mais votada: Zona {info.zonaLider} — {fmt(info.liderTotal)} votos
           </span>
+          <span className="text-foreground">2022: {fmt(totais.v22)}</span>
+          <span className="text-foreground">2026: {fmt(totais.v26)}</span>
           <span className="text-foreground">
-            Mais votada:{" "}
-            <strong>
-              Zona {info.zonaLider} — {fmt(info.liderTotal)} votos
-            </strong>
+            Diferença:{" "}
+            <span className={dif >= 0 ? "text-success" : "text-danger"}>
+              {dif > 0 ? "+" : ""}
+              {fmt(dif)} ({pct(totais.v22, totais.v26)})
+            </span>
           </span>
         </div>
       </div>
-
-      <div className="mb-3 md:hidden">{banner}</div>
 
       <div className="mb-4 flex flex-wrap gap-2">
         {info.zonas.map((z) => {
@@ -137,10 +133,10 @@ export function LocaisZona() {
                 onChange={() => setZonaSel(z.zona)}
               />
               <span
-                className={`cursor-pointer rounded-full border-2 px-3 py-1 text-xs transition-colors hover:bg-foreground/15 peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 ${
+                className={`inline-flex cursor-pointer rounded-lg border-2 px-3.5 py-2 text-sm font-semibold transition-all duration-150 hover:-translate-y-[1px] active:translate-y-[3px] peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 ${
                   marcada
-                    ? "border-primary bg-primary/10 font-semibold hover:bg-primary/30"
-                    : "border-border"
+                    ? "border-nav bg-nav text-nav-foreground shadow-[0_4px_0_0_var(--nav)] hover:shadow-[0_5px_0_0_var(--nav)] active:shadow-[0_1px_0_0_var(--nav)]"
+                    : "border-foreground/20 bg-card text-foreground shadow-[0_4px_0_0_rgba(0,0,0,0.18)] hover:shadow-[0_5px_0_0_rgba(0,0,0,0.18)] active:shadow-[0_1px_0_0_rgba(0,0,0,0.18)]"
                 }`}
               >
                 Zona {z.zona} - {fmt(z.total)}
@@ -153,10 +149,10 @@ export function LocaisZona() {
       {!zona ? (
         <p className="text-sm text-muted-foreground">Selecione uma zona.</p>
       ) : (
-        <div className="max-h-[500px] overflow-auto">
+        <div className="max-h-[340px] overflow-auto">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-card">
-              <tr className="border-b text-left text-muted-foreground">
+            <thead className="sticky top-0 z-10 bg-nav">
+              <tr className="text-left text-nav-foreground">
                 <th className="py-2">
                   <label className="inline-flex cursor-pointer items-center gap-1.5">
                     <input
@@ -167,13 +163,9 @@ export function LocaisZona() {
                       onChange={() => setOrdem("local")}
                     />
                     <span
-                      className={`rounded-full border-2 px-2 py-0.5 text-[11px] transition-colors hover:bg-foreground/15 peer-focus-visible:ring-2 peer-focus-visible:ring-ring ${
-                        ordem === "local"
-                          ? "border-primary bg-primary/10 font-semibold text-foreground hover:bg-primary/30"
-                          : "border-border text-muted-foreground"
-                      }`}
+                      className={`${BTN_TOPO} ${ordem === "local" ? BTN_TOPO_ON : BTN_TOPO_OFF}`}
                     >
-                      Local de votação
+                      Local
                     </span>
                   </label>
                 </th>
@@ -187,11 +179,7 @@ export function LocaisZona() {
                       onChange={() => setOrdem("votos")}
                     />
                     <span
-                      className={`rounded-full border-2 px-2 py-0.5 text-[11px] transition-colors hover:bg-foreground/15 peer-focus-visible:ring-2 peer-focus-visible:ring-ring ${
-                        ordem === "votos"
-                          ? "border-primary bg-primary/10 font-semibold text-foreground hover:bg-primary/30"
-                          : "border-border text-muted-foreground"
-                      }`}
+                      className={`${BTN_TOPO} ${ordem === "votos" ? BTN_TOPO_ON : BTN_TOPO_OFF}`}
                     >
                       Votos
                     </span>
@@ -207,22 +195,31 @@ export function LocaisZona() {
                       onChange={() => setOrdem("endereco")}
                     />
                     <span
-                      className={`rounded-full border-2 px-2 py-0.5 text-[11px] transition-colors hover:bg-foreground/15 peer-focus-visible:ring-2 peer-focus-visible:ring-ring ${
-                        ordem === "endereco"
-                          ? "border-primary bg-primary/10 font-semibold text-foreground hover:bg-primary/30"
-                          : "border-border text-muted-foreground"
-                      }`}
+                      className={`${BTN_TOPO} ${ordem === "endereco" ? BTN_TOPO_ON : BTN_TOPO_OFF}`}
                     >
                       Endereço
                     </span>
                   </label>
                 </th>
-                <th className="py-2">Bairro</th>
-                <th className="py-2 text-right">Aptos</th>
-                <th className="py-2 text-right">Comparec.</th>
-                <th className="py-2 text-right">Abst.</th>
-                <th className="py-2 text-right">Nominais</th>
-                <th className="py-2">Seções</th>
+                <th className="py-2">
+                  <label className="inline-flex cursor-pointer items-center gap-1.5">
+                    <input
+                      type="radio"
+                      name="ordem-locais"
+                      className="peer sr-only"
+                      checked={ordem === "bairro"}
+                      onChange={() => setOrdem("bairro")}
+                    />
+                    <span
+                      className={`${BTN_TOPO} ${ordem === "bairro" ? BTN_TOPO_ON : BTN_TOPO_OFF}`}
+                    >
+                      Bairro
+                    </span>
+                  </label>
+                </th>
+                <th className="py-2">
+                  <span className={BTN_TOPO_ESTATICO}>Seções</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -232,10 +229,6 @@ export function LocaisZona() {
                   <td className="py-2 pr-8 text-right font-semibold">{fmt(l[2])}</td>
                   <td className="pl-3 text-muted-foreground">{l[1]}</td>
                   <td className="pl-3 text-muted-foreground">{l[7] || "—"}</td>
-                  <td className="text-right">{fmt(l[3])}</td>
-                  <td className="text-right">{fmt(l[4])}</td>
-                  <td className="text-right">{fmt(l[5])}</td>
-                  <td className="text-right">{fmt(l[6])}</td>
                   <td className="pl-3 text-muted-foreground" title={l[9].join(", ")}>
                     {l[9].length > 0 ? `${l[9].length} seções` : "—"}
                   </td>

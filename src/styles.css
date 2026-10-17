@@ -44,6 +44,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-chart-4: var(--chart-4);
+  --color-zebra: var(--zebra);
 }
 
 :root {
@@ -68,6 +69,17 @@
   --input: oklch(0.929 0.013 255.508);
   --ring: oklch(0.704 0.04 256.788);
   --chart-4: oklch(0.828 0.189 84.429);
+  --zebra: oklch(0.95 0.008 255);
+}
+
+@layer components {
+  tbody > tr:nth-child(odd) {
+    background-color: var(--card);
+  }
+
+  tbody > tr:nth-child(even) {
+    background-color: var(--zebra);
+  }
 }
 
 @layer base {
