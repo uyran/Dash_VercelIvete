@@ -6,7 +6,7 @@ export default function Cabecalho() {
   return (
     <header
       data-testid="cabecalho"
-      className="relative overflow-hidden rounded-3xl border border-google-grey-300 bg-white px-6 py-6 shadow-sm sm:px-10 lg:px-12"
+      className="relative overflow-hidden rounded-3xl border border-google-grey-300 bg-white py-6 pr-6 pl-2.5 shadow-sm sm:pr-10 sm:pl-4 lg:pr-12 lg:pl-5"
     >
       <div className="absolute inset-x-0 top-0 h-1.5 bg-google-blue-500" />
 
