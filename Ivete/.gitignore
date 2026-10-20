@@ -1,0 +1,22 @@
+node_modules
+dist
+dist-ssr
+coverage
+.output
+*.local
+
+# Vercel (gerado pela CLI)
+.vercel
+.env*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+
+# planilha de origem mantida local (dados já convertidos em JSON)
+*.xlsx
+
+# material de referência local (mapeamento das regiões)
+rd.pdf
+rd.txt

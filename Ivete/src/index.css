@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  /* Cores do Google (Material) */
+  --color-google-blue-50: #e8f0fe;
+  --color-google-blue-100: #d2e3fc;
+  --color-google-blue-200: #aecbfa;
+  --color-google-blue-300: #8ab4f8;
+  --color-google-blue-500: #1a73e8;
+  --color-google-blue-600: #1967d2;
+  --color-google-blue-700: #174ea6;
+  --color-google-blue-800: #185abc;
+  --color-google-blue-900: #174ea6;
+  --color-google-green-500: #34a853;
+  --color-google-green-100: #ceead6;
+  --color-google-yellow-500: #fbbc04;
+  --color-google-yellow-100: #feefc3;
+  --color-google-red-500: #ea4335;
+  --color-google-red-100: #fce8e6;
+  --color-google-purple-500: #a142f4;
+  --color-google-purple-100: #f3e8fd;
+  --color-google-teal-500: #00acc1;
+  --color-google-teal-100: #d8f3f6;
+  --color-google-grey-50: #f8f9fa;
+  --color-google-grey-100: #f1f3f4;
+  --color-google-grey-200: #e8eaed;
+  --color-google-grey-300: #dadce0;
+  --color-google-grey-400: #bdc1c6;
+  --color-google-grey-500: #9aa0a6;
+  --color-google-grey-600: #5f6368;
+  --color-google-grey-700: #4e5256;
+  --color-google-grey-800: #3c4043;
+  --color-google-grey-900: #202124;
+
+  --font-sans: "Google Sans", "Product Sans", "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background-color: var(--color-google-grey-50);
+  color: var(--color-google-grey-900);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes balloon-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.balloon {
+  animation: balloon-in 0.14s ease-out;
+}
