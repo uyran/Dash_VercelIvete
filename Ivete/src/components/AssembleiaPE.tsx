@@ -403,9 +403,9 @@ export default function AssembleiaPE() {
               <thead>
                 <tr className="text-left text-google-grey-600">
                   <th className="sticky top-0 z-10 border-b bg-white py-2">Partido ou federação</th>
-                  <th className="sticky top-0 z-10 border-b bg-white py-2 text-right">Cadeiras</th>
-                  <th className="sticky top-0 z-10 border-b bg-white py-2 text-right">Votos</th>
-                  <th className="sticky top-0 z-10 border-b bg-white py-2 text-right">%</th>
+                  <th className="sticky top-0 z-10 border-b bg-white py-2 text-center">Cadeiras</th>
+                  <th className="sticky top-0 z-10 border-b bg-white py-2 pl-8 text-right">Votos</th>
+                  <th className="sticky top-0 z-10 border-b bg-white py-2 pl-8 pr-1 text-right">%</th>
                 </tr>
               </thead>
               <tbody>
@@ -424,9 +424,9 @@ export default function AssembleiaPE() {
                       />
                       <span className="ml-2 align-middle">{b.rotulo}</span>
                     </td>
-                    <td className="py-2 text-right font-semibold">{num(b.vagas)}</td>
-                    <td className="py-2 text-right">{num(b.votos)}</td>
-                    <td className="py-2 text-right text-google-grey-600">{perc(b.pct)}</td>
+                    <td className="py-2 text-center font-semibold">{num(b.vagas)}</td>
+                    <td className="py-2 pl-8 text-right">{num(b.votos)}</td>
+                    <td className="py-2 pr-1 pl-8 text-right text-google-grey-600">{perc(b.pct)}</td>
                   </tr>
                 ))}
               </tbody>
