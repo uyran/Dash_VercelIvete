@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import App from "@/App";
 
 describe("App", () => {
-  it("renderiza cabeçalho, indicadores, gráfico e as duas tabelas", () => {
+  it("renderiza cabeçalho, indicadores, gráfico, as duas tabelas e a ALEPE", () => {
     render(<App />);
 
     expect(screen.getByTestId("cabecalho")).toBeInTheDocument();
@@ -21,8 +21,12 @@ describe("App", () => {
     expect(screen.getByTestId("tabela-zonas")).toBeInTheDocument();
     expect(screen.getByLabelText("Escolher cidade")).toHaveValue("RECIFE");
 
-    expect(screen.getByTestId("rodape")).toBeInTheDocument();
-    expect(screen.getByText("Dados extraidos do TSE.")).toBeInTheDocument();
-    expect(screen.getByText("Desenvolvido por uyrancosta@gmail.com")).toBeInTheDocument();
+    expect(screen.getByTestId("assembleia-pe")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /composição da assembleia legislativa/i })).toBeInTheDocument();
+
+    expect(
+      screen.getByText((_, el) => el?.tagName === "A" && el.textContent === "uyrancosta@gmail.com"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Dados oficiais do TSE / Mapas: Electomaps")).toBeInTheDocument();
   });
 });
