@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
-import Paginacao from "@/components/Paginacao";
 import ThOrdenavel, { type EstadoOrdenacao } from "@/components/ThOrdenavel";
 import { cidadesDaRegiao, cidadesOrdenadas, type TotalCidade } from "@/lib/agregados";
 import { regioes } from "@/lib/dados";
 import { inteiro } from "@/lib/formato";
 
 const TODAS = "__TODAS__";
-const POR_PAGINA = 10;
+/** Altura da área rolável: cabeçalho fixo + 7 cidades visíveis. */
+const ALTURA_AREA = "max-h-[23rem]";
 
 type Campo = "cidade" | "regiao" | "votos";
 type Ordenacao = EstadoOrdenacao<Campo>;
@@ -25,7 +25,6 @@ function ordenar(linhas: TotalCidade[], { campo, dir }: Ordenacao): TotalCidade[
 
 export default function TabelaCidades() {
   const [regiao, setRegiao] = useState("Capital");
-  const [pagina, setPagina] = useState(1);
   const [ordenacao, setOrdenacao] = useState<Ordenacao>({ campo: "cidade", dir: "asc" });
 
   const filtradas = useMemo(
@@ -33,13 +32,7 @@ export default function TabelaCidades() {
     [regiao],
   );
   const linhas = useMemo(() => ordenar(filtradas, ordenacao), [filtradas, ordenacao]);
-  const visiveis = linhas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
   const totalVotos = filtradas.reduce((soma, c) => soma + c.votos, 0);
-
-  const trocarRegiao = (valor: string) => {
-    setRegiao(valor);
-    setPagina(1);
-  };
 
   const aoOrdenar = (campo: Campo) => {
     setOrdenacao((atual) =>
@@ -55,24 +48,18 @@ export default function TabelaCidades() {
       aria-labelledby="titulo-tabela-cidades"
       className="overflow-hidden rounded-2xl border-2 border-google-grey-600/40 bg-google-blue-50/50 shadow-md"
     >
-      <div className="flex flex-col gap-3 border-b-2 border-google-grey-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2
-            id="titulo-tabela-cidades"
-            className="text-lg font-semibold text-google-grey-900"
-          >
-            Votação por cidade e região
-          </h2>
-          <p className="text-xs text-google-grey-600">
-            {inteiro(filtradas.length)} {filtradas.length === 1 ? "cidade" : "cidades"} ·{" "}
-            {inteiro(totalVotos)} votos
-          </p>
-        </div>
+      <div className="border-b-2 border-google-grey-200 bg-white p-5">
+        <h2
+          id="titulo-tabela-cidades"
+          className="text-2xl font-semibold text-google-grey-900"
+        >
+          Votação por cidade e região
+        </h2>
 
-        <div className="flex items-center gap-2">
+        <div className="mt-3 flex flex-col gap-2 rounded-2xl bg-google-blue-50 px-4 py-3 sm:flex-row sm:items-center sm:gap-4">
           <label
             htmlFor="filtro-regiao"
-            className="text-sm lowercase text-google-grey-600"
+            className="text-base font-bold text-google-grey-900"
           >
             Região:
           </label>
@@ -80,8 +67,8 @@ export default function TabelaCidades() {
             id="filtro-regiao"
             aria-label="Filtrar por região"
             value={regiao}
-            onChange={(e) => trocarRegiao(e.target.value)}
-            className="rounded-full border-2 border-google-grey-300 bg-white px-4 py-2 pr-8 text-sm font-medium text-google-grey-900 outline-none focus-visible:border-google-blue-500 focus-visible:ring-2 focus-visible:ring-google-blue-100"
+            onChange={(e) => setRegiao(e.target.value)}
+            className="w-full rounded-full border-2 border-google-blue-600 bg-white px-4 py-2 pr-8 text-base font-bold text-google-grey-900 shadow-md outline-none focus-visible:ring-2 focus-visible:ring-google-blue-300 sm:w-80"
           >
             <option value={TODAS}>Todas as regiões</option>
             {[...regioes]
@@ -92,66 +79,64 @@ export default function TabelaCidades() {
                 </option>
               ))}
           </select>
+          <p className="text-base font-bold text-google-grey-600 sm:ml-auto">
+            {inteiro(filtradas.length)} {filtradas.length === 1 ? "cidade" : "cidades"} ·{" "}
+            {inteiro(totalVotos)} votos
+          </p>
         </div>
       </div>
 
-      <table className="w-full border-collapse text-sm">
-        <thead className="sticky top-0 z-10 bg-google-blue-600 text-white shadow-sm">
-          <tr>
-            <ThOrdenavel
-              campo="cidade"
-              rotulo="Cidade"
-              ordenacao={ordenacao}
-              aoOrdenar={aoOrdenar}
-            />
-            <ThOrdenavel
-              campo="regiao"
-              rotulo="Região"
-              ordenacao={ordenacao}
-              aoOrdenar={aoOrdenar}
-              minuscula
-            />
-            <ThOrdenavel
-              campo="votos"
-              rotulo="Total de votos"
-              ordenacao={ordenacao}
-              aoOrdenar={aoOrdenar}
-              direita
-            />
-          </tr>
-        </thead>
-        <tbody>
-          {visiveis.map((c, i) => (
-            <tr
-              key={c.cidade}
-              className={`border-b border-google-grey-200 last:border-b-0 ${
-                i % 2 === 1 ? "bg-white/70" : "bg-white"
-              } hover:bg-google-yellow-100`}
-            >
-              <td className="px-5 py-2.5 font-medium text-google-grey-900">{c.cidade}</td>
-              <td className="px-5 py-2.5 lowercase text-google-grey-600">{c.regiao}</td>
-              <td className="px-5 py-2.5 text-right font-semibold text-google-grey-900">
-                {inteiro(c.votos)}
-              </td>
-            </tr>
-          ))}
-          {visiveis.length === 0 ? (
+      <div data-testid="area-cidades" className={`${ALTURA_AREA} overflow-y-auto`}>
+        <table className="w-full table-fixed border-collapse text-base">
+          <thead className="sticky top-0 z-10 border-b-2 border-google-blue-300 bg-google-blue-100 shadow-sm">
             <tr>
-              <td colSpan={3} className="bg-white px-5 py-6 text-center text-google-grey-600">
-                Nenhuma cidade nesta região.
-              </td>
+              <ThOrdenavel
+                campo="cidade"
+                rotulo="Cidade"
+                ordenacao={ordenacao}
+                aoOrdenar={aoOrdenar}
+                centro
+              />
+              <ThOrdenavel
+                campo="regiao"
+                rotulo="Região"
+                ordenacao={ordenacao}
+                centro
+              />
+              <ThOrdenavel
+                campo="votos"
+                rotulo="Total de votos"
+                ordenacao={ordenacao}
+                aoOrdenar={aoOrdenar}
+                centro
+              />
             </tr>
-          ) : null}
-        </tbody>
-      </table>
-
-      <Paginacao
-        pagina={pagina}
-        total={linhas.length}
-        porPagina={POR_PAGINA}
-        aoMudar={setPagina}
-        rotulo={linhas.length === 1 ? "cidade" : "cidades"}
-      />
+          </thead>
+          <tbody>
+            {linhas.map((c, i) => (
+              <tr
+                key={c.cidade}
+                className={`border-b border-google-grey-200 last:border-b-0 ${
+                  i % 2 === 1 ? "bg-google-blue-50" : "bg-white"
+                } hover:bg-google-yellow-100`}
+              >
+                <td className="px-5 py-2.5 font-medium text-black">{c.cidade}</td>
+                <td className="px-5 py-2.5 text-center lowercase text-black">{c.regiao}</td>
+                <td className="px-5 py-2.5 text-center font-semibold text-black">
+                  {inteiro(c.votos)}
+                </td>
+              </tr>
+            ))}
+            {linhas.length === 0 ? (
+              <tr>
+                <td colSpan={3} className="bg-white px-5 py-6 text-center text-black">
+                  Nenhuma cidade nesta região.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }

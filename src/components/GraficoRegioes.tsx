@@ -84,11 +84,11 @@ export default function GraficoRegioes() {
         <div>
           <h2
             id="titulo-grafico-regioes"
-            className="text-lg font-semibold text-google-grey-900"
+            className="text-2xl font-semibold text-google-grey-900"
           >
             Votação total por região
           </h2>
-          <p className="text-xs text-google-grey-600">
+          <p className="text-xs font-bold text-google-grey-600">
             {inteiro(totalVotos)} votos · {totaisPorRegiao.length} regiões
           </p>
         </div>
@@ -134,8 +134,8 @@ export default function GraficoRegioes() {
             <YAxis
               type="category"
               dataKey="regiao"
-              width={170}
-              tick={{ fill: "#3c4043", fontSize: 12 }}
+              width={190}
+              tick={{ fill: "#000000", fontSize: 14 }}
               axisLine={false}
               tickLine={false}
             />
@@ -148,7 +148,7 @@ export default function GraficoRegioes() {
                 dataKey="votos"
                 position="right"
                 formatter={(v: number) => inteiro(Number(v))}
-                style={{ fill: "#3c4043", fontSize: 12, fontWeight: 600 }}
+                style={{ fill: "#000000", fontSize: 14, fontWeight: 600 }}
               />
             </Bar>
           </BarChart>

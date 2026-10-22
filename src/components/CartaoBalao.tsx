@@ -14,12 +14,12 @@ export type CartaoBalaoProps = {
 };
 
 const TONS = {
-  azul: { fundo: "bg-google-blue-50", borda: "border-google-blue-200", texto: "text-google-blue-600", ponto: "bg-google-blue-500" },
-  verde: { fundo: "bg-google-green-100", borda: "border-google-green-500/30", texto: "text-google-green-500", ponto: "bg-google-green-500" },
-  amarelo: { fundo: "bg-google-yellow-100", borda: "border-google-yellow-500/30", texto: "text-[#f9ab00]", ponto: "bg-google-yellow-500" },
-  roxo: { fundo: "bg-google-purple-100", borda: "border-google-purple-500/30", texto: "text-google-purple-500", ponto: "bg-google-purple-500" },
-  turquesa: { fundo: "bg-google-teal-100", borda: "border-google-teal-500/30", texto: "text-[#007b83]", ponto: "bg-google-teal-500" },
-  vermelho: { fundo: "bg-google-red-100", borda: "border-google-red-500/30", texto: "text-google-red-500", ponto: "bg-google-red-500" },
+  azul: { fundo: "bg-google-blue-50", borda: "border-google-blue-500", texto: "text-google-blue-600", ponto: "bg-google-blue-500" },
+  verde: { fundo: "bg-google-green-100", borda: "border-google-green-500", texto: "text-google-green-500", ponto: "bg-google-green-500" },
+  amarelo: { fundo: "bg-google-yellow-100", borda: "border-google-yellow-500", texto: "text-[#f9ab00]", ponto: "bg-google-yellow-500" },
+  roxo: { fundo: "bg-google-purple-100", borda: "border-google-purple-500", texto: "text-google-purple-500", ponto: "bg-google-purple-500" },
+  turquesa: { fundo: "bg-google-teal-100", borda: "border-google-teal-500", texto: "text-[#007b83]", ponto: "bg-google-teal-500" },
+  vermelho: { fundo: "bg-google-red-100", borda: "border-google-red-500", texto: "text-google-red-500", ponto: "bg-google-red-500" },
 } as const;
 
 export default function CartaoBalao({
@@ -65,7 +65,7 @@ export default function CartaoBalao({
             : undefined
         }
         className={[
-          "flex h-full cursor-default flex-col justify-between rounded-2xl border p-5 outline-none",
+          "flex h-full cursor-default flex-col justify-between rounded-2xl border-2 p-5 outline-none",
           "transition-shadow duration-150 focus-visible:ring-2 focus-visible:ring-google-blue-500 focus-visible:ring-offset-2",
           cor.fundo,
           cor.borda,

@@ -5,8 +5,6 @@ import TabelaZonas from "@/components/TabelaZonas";
 import { cidadeMaisVotada, infoCidade, locaisDaZona } from "@/lib/agregados";
 import { inteiro } from "@/lib/formato";
 
-const POR_PAGINA = 10;
-
 const linhasTabela = (container: HTMLElement) =>
   [...container.querySelectorAll("tbody tr")].map((tr) => [
     tr.children[0]?.textContent?.trim() ?? "",
@@ -47,14 +45,13 @@ describe("TabelaZonas", () => {
     expect(ativas[0]).toHaveTextContent(`Zona ${info.zonaMaisVotada.zona}`);
   });
 
-  it("lista os locais da zona inicial do maior para o menor, com no máximo 10 linhas", () => {
+  it("lista os locais da zona inicial do maior para o menor numa área rolável", () => {
     const { container } = render(<TabelaZonas />);
     const info = infoCidade(cidadeMaisVotada.cidade)!;
     const esperado = locaisDaZona(cidadeMaisVotada.cidade, info.zonaMaisVotada.zona);
     const linhas = linhasTabela(container);
 
-    expect(linhas.length).toBeLessThanOrEqual(POR_PAGINA);
-    expect(linhas).toHaveLength(Math.min(POR_PAGINA, esperado.length));
+    expect(linhas).toHaveLength(esperado.length);
     expect(linhas[0][0]).toBe(esperado[0].local);
     expect(linhas[0][1]).toBe(inteiro(esperado[0].votos));
 
@@ -62,32 +59,36 @@ describe("TabelaZonas", () => {
     for (let i = 1; i < votos.length; i++) {
       expect(votos[i - 1]).toBeGreaterThanOrEqual(votos[i]);
     }
-    expect(screen.getByText(/Mostrando/)).toHaveTextContent(
-      `de ${inteiro(esperado.length)} locais`,
-    );
+
+    const area = screen.getByTestId("area-zonas");
+    expect(area).toHaveClass("overflow-y-auto", "max-h-[23rem]");
   });
 
-  it("pagina os locais e volta à página 1 ao trocar de zona", async () => {
+  it("não tem paginação e deixa a área dos locais rolar", () => {
+    render(<TabelaZonas />);
+
+    expect(screen.queryByRole("button", { name: /anterior/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /próxima/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Mostrando/)).not.toBeInTheDocument();
+    expect(screen.getByTestId("area-zonas")).toHaveClass("overflow-y-auto");
+  });
+
+  it("volta ao topo da lista ao trocar de zona", async () => {
     const user = userEvent.setup();
     const { container } = render(<TabelaZonas />);
     const info = infoCidade(cidadeMaisVotada.cidade)!;
-    const primeira = locaisDaZona(cidadeMaisVotada.cidade, info.zonaMaisVotada.zona);
     const segundaZona = info.zonas[1];
-
-    expect(primeira.length).toBeGreaterThan(POR_PAGINA);
-
-    await user.click(screen.getByRole("button", { name: /próxima/i }));
-    expect(linhasTabela(container)[0][0]).toBe(primeira[POR_PAGINA].local);
-    expect(screen.getByText(/Mostrando/)).toHaveTextContent(
-      `Mostrando ${POR_PAGINA + 1}–${Math.min(2 * POR_PAGINA, primeira.length)} de ${inteiro(primeira.length)} locais`,
-    );
 
     await user.click(
       screen.getByRole("button", {
         name: `Zona ${segundaZona.zona}, ${inteiro(segundaZona.votos)} votos`,
       }),
     );
-    expect(screen.getByText(/Mostrando/)).toHaveTextContent("Mostrando 1–");
+
+    const esperado = locaisDaZona(cidadeMaisVotada.cidade, segundaZona.zona);
+    expect(linhasTabela(container)).toHaveLength(esperado.length);
+    expect(linhasTabela(container)[0][0]).toBe(esperado[0].local);
+    expect(screen.queryByText(/Mostrando/)).not.toBeInTheDocument();
   });
 
   it("troca a tabela ao clicar em outra zona", async () => {
@@ -104,10 +105,16 @@ describe("TabelaZonas", () => {
 
     const esperado = locaisDaZona(cidadeMaisVotada.cidade, alvo.zona);
     const linhas = linhasTabela(container);
-    expect(linhas).toHaveLength(Math.min(POR_PAGINA, esperado.length));
+    expect(linhas).toHaveLength(esperado.length);
     expect(linhas[0][0]).toBe(esperado[0].local);
-    expect(container.querySelector("caption")).toHaveTextContent(`Zona ${alvo.zona}`);
+    expect(
+      screen.getByRole("button", {
+        name: `Zona ${alvo.zona}, ${inteiro(alvo.votos)} votos`,
+      }),
+    ).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByText(inteiro(alvo.votos))).toBeInTheDocument();
+    expect(container.querySelector("caption")).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Zonas de /)).not.toBeInTheDocument();
   });
 
   it("recalcula tudo ao trocar de cidade", async () => {
@@ -127,10 +134,8 @@ describe("TabelaZonas", () => {
     ).toHaveAttribute("aria-pressed", "true");
 
     const esperado = locaisDaZona(outra, info.zonaMaisVotada.zona);
-    expect(linhasTabela(container)).toHaveLength(Math.min(POR_PAGINA, esperado.length));
-    expect(container.querySelector("caption")).toHaveTextContent(
-      `Zona ${info.zonaMaisVotada.zona}`,
-    );
+    expect(linhasTabela(container)).toHaveLength(esperado.length);
+    expect(linhasTabela(container)[0][0]).toBe(esperado[0].local);
   });
 
   it("transforma os títulos das colunas em botões de ordenação", () => {

@@ -9,7 +9,7 @@ describe("App", () => {
     expect(screen.getByTestId("cabecalho")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /professora ivete caetano/i })).toBeInTheDocument();
     expect(screen.getByLabelText("Número 13613")).toBeInTheDocument();
-    expect(screen.getByText("Candidata a Deputada Estadual")).toBeInTheDocument();
+    expect(screen.getByText("Deputada Estadual")).toBeInTheDocument();
     expect(screen.getByText("Eleita")).toBeInTheDocument();
 
     expect(screen.getByTestId("indicadores")).toBeInTheDocument();

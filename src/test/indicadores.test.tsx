@@ -20,7 +20,7 @@ describe("Cabecalho", () => {
     expect(nome).toHaveClass("font-bold");
 
     expect(screen.getByLabelText("Número 13613")).toHaveTextContent("13613");
-    expect(screen.getByText("Candidata a Deputada Estadual")).toBeInTheDocument();
+    expect(screen.getByText("Deputada Estadual")).toBeInTheDocument();
     expect(screen.getByText("2026")).toBeInTheDocument();
     expect(screen.getByText("Eleita")).toBeInTheDocument();
     expect(screen.getAllByText("PT/PE").length).toBeGreaterThan(0);
@@ -35,7 +35,7 @@ describe("Cabecalho", () => {
 
     const etiquetas = nome.nextElementSibling as HTMLElement;
     expect(etiquetas).toBeInTheDocument();
-    expect(etiquetas).toHaveTextContent("Candidata a Deputada Estadual");
+    expect(etiquetas).toHaveTextContent("Deputada Estadual");
     expect(etiquetas).toHaveTextContent("2026");
     expect(etiquetas).toHaveTextContent("Eleita");
     expect(etiquetas).toHaveTextContent("PT/PE");

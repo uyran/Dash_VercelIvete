@@ -228,8 +228,8 @@ export function TituloAssembleiaPE() {
     <div className="flex flex-wrap items-center gap-4">
       <BandeiraPE className="h-10 w-[60px] shrink-0 rounded-sm border shadow-sm" />
       <div className="min-w-0">
-        <h2 className="text-xl font-bold tracking-tight">
-          Composição da Assembleia Legislativa de Pernambuco — 2026 - 49 vagas
+        <h2 className="text-2xl font-semibold text-google-grey-900">
+          Composição da Assembleia Legislativa de Pernambuco — 2026
         </h2>
       </div>
     </div>
@@ -402,10 +402,18 @@ export default function AssembleiaPE() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-google-grey-600">
-                  <th className="sticky top-0 z-10 border-b bg-white py-2">Partido ou federação</th>
-                  <th className="sticky top-0 z-10 border-b bg-white py-2 text-center">Cadeiras</th>
-                  <th className="sticky top-0 z-10 border-b bg-white py-2 pl-8 text-right">Votos</th>
-                  <th className="sticky top-0 z-10 border-b bg-white py-2 pl-8 pr-1 text-right">%</th>
+                  <th className="sticky top-0 z-10 border-b bg-white py-2 pr-1 pl-2">
+                    Partido ou federação
+                  </th>
+                  <th className="sticky top-0 z-10 border-b bg-white py-2 px-3 text-center">
+                    Cadeiras
+                  </th>
+                  <th className="sticky top-0 z-10 border-b bg-white py-2 px-3 text-center">
+                    Votos
+                  </th>
+                  <th className="sticky top-0 z-10 border-b bg-white py-2 px-3 text-center">
+                    %
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -417,16 +425,18 @@ export default function AssembleiaPE() {
                     onClick={() => alternar(b.chave)}
                     className={`cursor-pointer border-b hover:bg-google-grey-100 ${sel === b.chave ? "bg-google-grey-100" : ""} ${escurecer(b.chave)}`}
                   >
-                    <td className="py-2">
+                    <td className="py-2 pr-1 pl-2">
                       <span
                         className="inline-block h-3 w-3 rounded-sm align-middle"
                         style={{ background: b.cor }}
                       />
                       <span className="ml-2 align-middle">{b.rotulo}</span>
                     </td>
-                    <td className="py-2 text-center font-semibold">{num(b.vagas)}</td>
-                    <td className="py-2 pl-8 text-right">{num(b.votos)}</td>
-                    <td className="py-2 pr-1 pl-8 text-right text-google-grey-600">{perc(b.pct)}</td>
+                    <td className="py-2 px-3 text-center font-semibold">{num(b.vagas)}</td>
+                    <td className="py-2 px-3 text-center">{num(b.votos)}</td>
+                    <td className="py-2 px-3 text-center text-google-grey-600">
+                      {perc(b.pct)}
+                    </td>
                   </tr>
                 ))}
               </tbody>

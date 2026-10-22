@@ -5,8 +5,6 @@ import TabelaCidades from "@/components/TabelaCidades";
 import { cidadesDaRegiao, cidadesOrdenadas, totaisPorRegiao } from "@/lib/agregados";
 import { inteiro } from "@/lib/formato";
 
-const POR_PAGINA = 10;
-
 const linhasDaTabela = (container: HTMLElement) =>
   [...container.querySelectorAll("tbody tr")].map((tr) => [
     tr.children[0]?.textContent?.trim() ?? "",
@@ -19,25 +17,18 @@ const votosDe = (linha: string[]) => Number(linha[2].replaceAll(".", ""));
 const alfa = (a: string, b: string) => a.localeCompare(b, "pt-BR");
 
 describe("TabelaCidades", () => {
-  it("inicia na Capital, em ordem alfabética e com no máximo 10 linhas", () => {
+  it("inicia na Capital em ordem alfabética e mostra a área rolável com 7 cidades", () => {
     const { container } = render(<TabelaCidades />);
     const esperado = cidadesDaRegiao("Capital").sort((a, b) => alfa(a.cidade, b.cidade));
     const linhas = linhasDaTabela(container);
 
     expect(screen.getByLabelText("Filtrar por região")).toHaveValue("Capital");
-    expect(linhas.length).toBeLessThanOrEqual(POR_PAGINA);
-    expect(linhas).toHaveLength(Math.min(POR_PAGINA, esperado.length));
-    expect(linhas.map((l) => l[0])).toEqual(
-      esperado.slice(0, POR_PAGINA).map((c) => c.cidade),
-    );
+    expect(linhas).toHaveLength(esperado.length);
+    expect(linhas.map((l) => l[0])).toEqual(esperado.map((c) => c.cidade));
     expect(linhas.every(([, regiao]) => regiao === "Capital")).toBe(true);
-    expect(
-      screen.getByText(/Mostrando/),
-    ).toHaveTextContent(
-      `Mostrando 1–${Math.min(POR_PAGINA, esperado.length)} de ${inteiro(esperado.length)} ${
-        esperado.length === 1 ? "cidade" : "cidades"
-      }`,
-    );
+
+    const area = screen.getByTestId("area-cidades");
+    expect(area).toHaveClass("overflow-y-auto", "max-h-[23rem]");
   });
 
   it("transforma os títulos das colunas em botões de ordenação", () => {
@@ -72,40 +63,32 @@ describe("TabelaCidades", () => {
     }
   });
 
-  it("ordena por cidade e por região em ordem alfabética", async () => {
+  it("ordena por cidade em ordem alfabética e o botão de Região não altera as linhas", async () => {
     const user = userEvent.setup();
     const { container } = render(<TabelaCidades />);
 
     await user.selectOptions(screen.getByLabelText("Filtrar por região"), "__TODAS__");
+    const antes = linhasDaTabela(container);
+
     await user.click(screen.getByRole("button", { name: "Ordenar por Região" }));
+    expect(linhasDaTabela(container)).toEqual(antes);
 
-    const regioes = linhasDaTabela(container).map(([, regiao]) => regiao);
-    for (let i = 1; i < regioes.length; i++) {
-      expect(alfa(regioes[i - 1], regioes[i])).toBeLessThanOrEqual(0);
-    }
-
-    await user.click(screen.getByRole("button", { name: "Ordenar por Cidade" }));
     const cidadesNaTela = linhasDaTabela(container).map(([cidade]) => cidade);
     for (let i = 1; i < cidadesNaTela.length; i++) {
       expect(alfa(cidadesNaTela[i - 1], cidadesNaTela[i])).toBeLessThanOrEqual(0);
     }
+    expect(
+      screen.getByRole("columnheader", { name: /região/i }),
+    ).toHaveAttribute("aria-sort", "none");
   });
 
-  it("pagina as cidades e volta para a página 1 ao trocar a região", async () => {
-    const user = userEvent.setup();
-    const { container } = render(<TabelaCidades />);
-    const esperado = [...cidadesOrdenadas].sort((a, b) => alfa(a.cidade, b.cidade));
+  it("não tem paginação e deixa a área das cidades rolar", () => {
+    render(<TabelaCidades />);
 
-    await user.selectOptions(screen.getByLabelText("Filtrar por região"), "__TODAS__");
-    await user.click(screen.getByRole("button", { name: /próxima/i }));
-
-    expect(linhasDaTabela(container)[0][0]).toBe(esperado[POR_PAGINA].cidade);
-    expect(screen.getByText(/Mostrando/)).toHaveTextContent(
-      `Mostrando ${POR_PAGINA + 1}–${Math.min(2 * POR_PAGINA, esperado.length)} de ${inteiro(esperado.length)} cidades`,
-    );
-
-    await user.selectOptions(screen.getByLabelText("Filtrar por região"), "Mata Sul");
-    expect(screen.getByText(/Mostrando/)).toHaveTextContent("Mostrando 1–");
+    expect(screen.queryByRole("button", { name: /anterior/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /próxima/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Mostrando/)).not.toBeInTheDocument();
+    expect(screen.getByTestId("area-cidades")).toHaveClass("overflow-y-auto");
   });
 
   it("lista todas as cidades quando a opção Todas é escolhida", async () => {
@@ -114,10 +97,13 @@ describe("TabelaCidades", () => {
 
     await user.selectOptions(screen.getByLabelText("Filtrar por região"), "__TODAS__");
 
-    expect(linhasDaTabela(container)).toHaveLength(POR_PAGINA);
-    expect(screen.getByText(/Mostrando/)).toHaveTextContent(
-      `de ${inteiro(cidadesOrdenadas.length)} cidades`,
-    );
+    expect(linhasDaTabela(container)).toHaveLength(cidadesOrdenadas.length);
+    const total = cidadesOrdenadas.reduce((soma, c) => soma + c.votos, 0);
+    expect(
+      screen.getByText(
+        `${inteiro(cidadesOrdenadas.length)} cidades · ${inteiro(total)} votos`,
+      ),
+    ).toBeInTheDocument();
     const opcoes = within(screen.getByLabelText("Filtrar por região")).getAllByRole("option");
     expect(opcoes).toHaveLength(1 + totaisPorRegiao.length);
   });
