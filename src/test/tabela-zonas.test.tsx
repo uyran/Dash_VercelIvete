@@ -142,12 +142,12 @@ describe("TabelaZonas", () => {
     render(<TabelaZonas />);
 
     expect(
-      screen.getByRole("button", { name: "Ordenar por Local de votação" }),
+      screen.getByRole("button", { name: "Ordenar por Local" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Ordenar por Votos" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Ordenar por Endereço" })).toBeInTheDocument();
     expect(
-      screen.getByRole("columnheader", { name: "Local de votação" }),
+      screen.getByRole("columnheader", { name: "Local" }),
     ).toHaveAttribute("aria-sort", "none");
     expect(screen.getByRole("columnheader", { name: "Votos" })).toHaveAttribute(
       "aria-sort",
@@ -163,13 +163,13 @@ describe("TabelaZonas", () => {
     const user = userEvent.setup();
     const { container } = render(<TabelaZonas />);
 
-    await user.click(screen.getByRole("button", { name: "Ordenar por Local de votação" }));
+    await user.click(screen.getByRole("button", { name: "Ordenar por Local" }));
     const locais = linhasTabela(container).map(([local]) => local);
     for (let i = 1; i < locais.length; i++) {
       expect(locais[i - 1].localeCompare(locais[i], "pt-BR")).toBeLessThanOrEqual(0);
     }
     expect(
-      screen.getByRole("columnheader", { name: "Local de votação" }),
+      screen.getByRole("columnheader", { name: "Local" }),
     ).toHaveAttribute("aria-sort", "ascending");
 
     await user.click(screen.getByRole("button", { name: "Ordenar por Endereço" }));

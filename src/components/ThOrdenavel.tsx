@@ -17,6 +17,7 @@ export default function ThOrdenavel<T extends string>({
   direita = false,
   centro = false,
   minuscula = false,
+  className = "",
 }: {
   campo: T;
   rotulo: string;
@@ -26,6 +27,7 @@ export default function ThOrdenavel<T extends string>({
   direita?: boolean;
   centro?: boolean;
   minuscula?: boolean;
+  className?: string;
 }) {
   const ativo = ordenacao.campo === campo;
   const alinhamento = centro ? "text-center" : direita ? "text-right" : "text-left";
@@ -41,7 +43,7 @@ export default function ThOrdenavel<T extends string>({
         type="button"
         onClick={() => aoOrdenar?.(campo)}
         aria-label={`Ordenar por ${rotulo}`}
-        className={`${estiloBotao} ${justifica} ${minuscula ? "lowercase" : "uppercase"}`}
+        className={`${estiloBotao} ${justifica} ${minuscula ? "lowercase" : "uppercase"} ${className}`}
       >
         {rotulo}
         <span aria-hidden className="text-[10px] leading-none">

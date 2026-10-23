@@ -105,7 +105,7 @@ export default function TabelaCidades() {
               />
               <ThOrdenavel
                 campo="votos"
-                rotulo="Total de votos"
+                rotulo="Tot. Votos"
                 ordenacao={ordenacao}
                 aoOrdenar={aoOrdenar}
                 centro

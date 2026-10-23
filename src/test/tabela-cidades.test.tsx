@@ -36,10 +36,10 @@ describe("TabelaCidades", () => {
     expect(screen.getByRole("heading", { name: /votação por cidade e região/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Ordenar por Cidade" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Ordenar por Região" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Ordenar por Total de votos" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ordenar por Tot. Votos" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: /cidade/i })).toHaveAttribute("aria-sort", "ascending");
     expect(screen.getByRole("columnheader", { name: /região/i })).toHaveAttribute("aria-sort", "none");
-    expect(screen.getByRole("columnheader", { name: /total de votos/i })).toHaveAttribute("aria-sort", "none");
+    expect(screen.getByRole("columnheader", { name: /tot\. votos/i })).toHaveAttribute("aria-sort", "none");
   });
 
   it("ordena por votos em ordem decrescente ao clicar no cabeçalho", async () => {
@@ -47,16 +47,16 @@ describe("TabelaCidades", () => {
     const { container } = render(<TabelaCidades />);
 
     await user.selectOptions(screen.getByLabelText("Filtrar por região"), "__TODAS__");
-    await user.click(screen.getByRole("button", { name: "Ordenar por Total de votos" }));
+    await user.click(screen.getByRole("button", { name: "Ordenar por Tot. Votos" }));
 
     const votos = linhasDaTabela(container).map(votosDe);
     expect(votos.length).toBeGreaterThan(1);
     for (let i = 1; i < votos.length; i++) {
       expect(votos[i - 1]).toBeGreaterThanOrEqual(votos[i]);
     }
-    expect(screen.getByRole("columnheader", { name: /total de votos/i })).toHaveAttribute("aria-sort", "descending");
+    expect(screen.getByRole("columnheader", { name: /tot\. votos/i })).toHaveAttribute("aria-sort", "descending");
 
-    await user.click(screen.getByRole("button", { name: "Ordenar por Total de votos" }));
+    await user.click(screen.getByRole("button", { name: "Ordenar por Tot. Votos" }));
     const invertidos = linhasDaTabela(container).map(votosDe);
     for (let i = 1; i < invertidos.length; i++) {
       expect(invertidos[i - 1]).toBeLessThanOrEqual(invertidos[i]);

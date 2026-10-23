@@ -34,7 +34,7 @@ function Resumo({ rotulo, valor }: { rotulo: string; valor: string }) {
 }
 
 const botaoZona = [
-  "shrink-0 rounded-lg border-2 px-4 py-2 text-xs font-bold transition-all",
+  "shrink-0 rounded-lg border-2 px-2.5 py-2 text-xs font-bold transition-all",
   "outline-none focus-visible:ring-2 focus-visible:ring-google-blue-500 focus-visible:ring-offset-2",
   "active:translate-y-[3px]",
 ].join(" ");
@@ -173,10 +173,11 @@ export default function TabelaZonas() {
             <tr>
               <ThOrdenavel
                 campo="local"
-                rotulo="Local de votação"
+                rotulo="Local"
                 ordenacao={ordenacao}
                 aoOrdenar={aoOrdenar}
                 centro
+                className="text-xs!"
               />
               <ThOrdenavel
                 campo="votos"
@@ -184,6 +185,7 @@ export default function TabelaZonas() {
                 ordenacao={ordenacao}
                 aoOrdenar={aoOrdenar}
                 centro
+                className="text-xs!"
               />
               <ThOrdenavel
                 campo="endereco"
@@ -191,6 +193,7 @@ export default function TabelaZonas() {
                 ordenacao={ordenacao}
                 aoOrdenar={aoOrdenar}
                 centro
+                className="text-xs!"
               />
             </tr>
           </thead>
