@@ -18,6 +18,7 @@ export default function ThOrdenavel<T extends string>({
   centro = false,
   minuscula = false,
   className = "",
+  thClassName = "w-1/3 px-5 py-0",
 }: {
   campo: T;
   rotulo: string;
@@ -28,6 +29,8 @@ export default function ThOrdenavel<T extends string>({
   centro?: boolean;
   minuscula?: boolean;
   className?: string;
+  /** Classes do <th> (largura e espaçamento lateral). */
+  thClassName?: string;
 }) {
   const ativo = ordenacao.campo === campo;
   const alinhamento = centro ? "text-center" : direita ? "text-right" : "text-left";
@@ -37,7 +40,7 @@ export default function ThOrdenavel<T extends string>({
     <th
       scope="col"
       aria-sort={ativo ? (ordenacao.dir === "asc" ? "ascending" : "descending") : "none"}
-      className={`w-1/3 px-5 py-0 ${alinhamento}`}
+      className={`${thClassName} ${alinhamento}`}
     >
       <button
         type="button"

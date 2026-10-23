@@ -97,6 +97,7 @@ export default function TabelaCidades() {
                 aoOrdenar={aoOrdenar}
                 centro
                 className="text-xs! whitespace-nowrap"
+                thClassName="w-1/3 px-2 py-0 sm:px-5"
               />
               <ThOrdenavel
                 campo="regiao"
@@ -104,6 +105,7 @@ export default function TabelaCidades() {
                 ordenacao={ordenacao}
                 centro
                 className="text-xs! whitespace-nowrap"
+                thClassName="w-1/3 px-2 py-0 sm:px-5"
               />
               <ThOrdenavel
                 campo="votos"
@@ -112,6 +114,7 @@ export default function TabelaCidades() {
                 aoOrdenar={aoOrdenar}
                 centro
                 className="text-xs! whitespace-nowrap"
+                thClassName="w-1/3 px-2 py-0 sm:px-5"
               />
             </tr>
           </thead>
