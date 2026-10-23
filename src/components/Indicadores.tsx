@@ -50,7 +50,7 @@ export default function Indicadores() {
 
       <CartaoBalao
         titulo="Local com maior votação"
-        valor={localMaisVotado.local}
+        valor={<span className="text-lg!">{localMaisVotado.local}</span>}
         sub={`${localMaisVotado.cidade} · Zona ${localMaisVotado.zona} · ${inteiro(localMaisVotado.votos)} votos`}
         tom="roxo"
       />

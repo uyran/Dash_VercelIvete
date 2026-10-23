@@ -46,9 +46,9 @@ export default function TabelaCidades() {
     <section
       data-testid="tabela-cidades"
       aria-labelledby="titulo-tabela-cidades"
-      className="overflow-hidden rounded-2xl border-2 border-google-grey-600/40 bg-google-blue-50/50 shadow-md"
+      className="overflow-hidden rounded-2xl border-2 border-google-grey-600/40 bg-google-green-100/50 shadow-md"
     >
-      <div className="border-b-2 border-google-grey-200 bg-white p-5">
+      <div className="border-b-2 border-google-grey-200 bg-google-green-100 p-5">
         <h2
           id="titulo-tabela-cidades"
           className="text-2xl font-semibold text-google-grey-900"

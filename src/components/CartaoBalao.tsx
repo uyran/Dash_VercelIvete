@@ -83,7 +83,7 @@ export default function CartaoBalao({
         </div>
 
         <p className={`mt-3 text-2xl leading-tight font-bold break-words ${cor.texto}`}>{valor}</p>
-        {sub ? <p className="mt-1 text-xs text-google-grey-600">{sub}</p> : null}
+        {sub ? <p className="mt-1 text-sm text-google-grey-600">{sub}</p> : null}
       </div>
 
       {aberto && itens ? (

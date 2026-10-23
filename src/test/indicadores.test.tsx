@@ -33,10 +33,16 @@ describe("Cabecalho", () => {
     expect(screen.queryByText(/·\s*PE/)).not.toBeInTheDocument();
     expect(screen.queryByText("IVETE CAETANO DE OLIVEIRA")).not.toBeInTheDocument();
 
-    const etiquetas = nome.nextElementSibling as HTMLElement;
+    const numero = nome.nextElementSibling as HTMLElement;
+    expect(numero).toHaveAttribute("aria-label", "Número 13613");
+
+    const cargo = numero.nextElementSibling as HTMLElement;
+    expect(cargo).toBeInTheDocument();
+    expect(cargo).toHaveTextContent("Deputada Estadual");
+    expect(cargo).toHaveTextContent("2026");
+
+    const etiquetas = cargo.nextElementSibling as HTMLElement;
     expect(etiquetas).toBeInTheDocument();
-    expect(etiquetas).toHaveTextContent("Deputada Estadual");
-    expect(etiquetas).toHaveTextContent("2026");
     expect(etiquetas).toHaveTextContent("Eleita");
     expect(etiquetas).toHaveTextContent("PT/PE");
   });

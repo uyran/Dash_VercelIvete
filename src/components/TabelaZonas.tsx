@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import ThOrdenavel, { type EstadoOrdenacao } from "@/components/ThOrdenavel";
 import { cidadeMaisVotada, infoCidade, locaisDaZona, type LocalZona } from "@/lib/agregados";
 import { cidades } from "@/lib/dados";
@@ -34,7 +34,7 @@ function Resumo({ rotulo, valor }: { rotulo: string; valor: string }) {
 }
 
 const botaoZona = [
-  "rounded-lg border-2 px-4 py-2 text-xs font-bold transition-all",
+  "shrink-0 rounded-lg border-2 px-4 py-2 text-xs font-bold transition-all",
   "outline-none focus-visible:ring-2 focus-visible:ring-google-blue-500 focus-visible:ring-offset-2",
   "active:translate-y-[3px]",
 ].join(" ");
@@ -45,6 +45,27 @@ export default function TabelaZonas() {
   const [ordenacao, setOrdenacao] = useState<Ordenacao>({ campo: "votos", dir: "desc" });
 
   const info = infoCidade(cidade)!;
+  const grupoZonasRef = useRef<HTMLDivElement>(null);
+  const [larguraZona, setLarguraZona] = useState<number | null>(null);
+
+  useLayoutEffect(() => {
+    const grupo = grupoZonasRef.current;
+    if (!grupo) return;
+    const botoes = Array.from(grupo.querySelectorAll<HTMLButtonElement>("button"));
+    botoes.forEach((b) => {
+      b.style.width = "";
+    });
+    if (botoes.length < 2) {
+      setLarguraZona(null);
+      return;
+    }
+    const maior = Math.max(...botoes.map((b) => b.offsetWidth));
+    botoes.forEach((b) => {
+      b.style.width = `${maior}px`;
+    });
+    setLarguraZona(maior);
+  }, [cidade, info.zonas]);
+
   const zonaAtiva = useMemo(() => {
     if (zona !== null && info.zonas.some((z) => z.zona === zona)) return zona;
     return info.zonaMaisVotada.zona;
@@ -68,9 +89,9 @@ export default function TabelaZonas() {
     <section
       data-testid="tabela-zonas"
       aria-labelledby="titulo-tabela-zonas"
-      className="overflow-hidden rounded-2xl border-2 border-google-grey-600/40 bg-google-blue-50/50 shadow-md"
+      className="overflow-hidden rounded-2xl border-2 border-google-grey-600/40 bg-google-purple-100/50 shadow-md"
     >
-      <div className="border-b-2 border-google-grey-200 bg-white p-5">
+      <div className="border-b-2 border-google-grey-200 bg-google-purple-100 p-5">
         <h2 id="titulo-tabela-zonas" className="text-2xl font-semibold text-google-grey-900">
           Voto por zona e local de votação
         </h2>
@@ -114,7 +135,12 @@ export default function TabelaZonas() {
       </div>
 
       <div className="border-b-2 border-google-grey-200 p-5">
-        <div className="flex flex-wrap gap-2.5" role="group" aria-label="Zonas da cidade">
+        <div
+          ref={grupoZonasRef}
+          className="flex flex-wrap gap-2.5"
+          role="group"
+          aria-label="Zonas da cidade"
+        >
           {info.zonas.map((z) => {
             const ativa = z.zona === zonaAtiva;
             return (
@@ -126,6 +152,7 @@ export default function TabelaZonas() {
                 onClick={() => {
                   setZona(z.zona);
                 }}
+                style={larguraZona !== null ? { width: `${larguraZona}px` } : undefined}
                 className={[
                   botaoZona,
                   ativa

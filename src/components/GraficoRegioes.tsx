@@ -120,7 +120,7 @@ export default function GraficoRegioes() {
           <BarChart
             data={totaisPorRegiao}
             layout="vertical"
-            margin={{ top: 4, right: 56, bottom: 8, left: 8 }}
+            margin={{ top: 4, right: 56, bottom: 8, left: 0 }}
             barCategoryGap={8}
           >
             <CartesianGrid strokeDasharray="4 4" stroke="#e8eaed" horizontal={false} />
@@ -134,7 +134,7 @@ export default function GraficoRegioes() {
             <YAxis
               type="category"
               dataKey="regiao"
-              width={190}
+              width={162}
               tick={{ fill: "#000000", fontSize: 14 }}
               axisLine={false}
               tickLine={false}
