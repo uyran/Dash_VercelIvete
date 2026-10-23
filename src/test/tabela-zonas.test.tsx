@@ -145,7 +145,7 @@ describe("TabelaZonas", () => {
       screen.getByRole("button", { name: "Ordenar por Local" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Ordenar por Votos" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Ordenar por Endereço" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ordenar por End." })).toBeInTheDocument();
     expect(
       screen.getByRole("columnheader", { name: "Local" }),
     ).toHaveAttribute("aria-sort", "none");
@@ -153,7 +153,7 @@ describe("TabelaZonas", () => {
       "aria-sort",
       "descending",
     );
-    expect(screen.getByRole("columnheader", { name: "Endereço" })).toHaveAttribute(
+    expect(screen.getByRole("columnheader", { name: "End." })).toHaveAttribute(
       "aria-sort",
       "none",
     );
@@ -172,13 +172,13 @@ describe("TabelaZonas", () => {
       screen.getByRole("columnheader", { name: "Local" }),
     ).toHaveAttribute("aria-sort", "ascending");
 
-    await user.click(screen.getByRole("button", { name: "Ordenar por Endereço" }));
+    await user.click(screen.getByRole("button", { name: "Ordenar por End." }));
     const enderecos = linhasTabela(container).map(([, , endereco]) => endereco);
     for (let i = 1; i < enderecos.length; i++) {
       expect(enderecos[i - 1].localeCompare(enderecos[i], "pt-BR")).toBeLessThanOrEqual(0);
     }
     expect(
-      screen.getByRole("columnheader", { name: "Endereço" }),
+      screen.getByRole("columnheader", { name: "End." }),
     ).toHaveAttribute("aria-sort", "ascending");
 
     await user.click(screen.getByRole("button", { name: "Ordenar por Votos" }));

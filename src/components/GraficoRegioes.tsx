@@ -141,6 +141,8 @@ export default function GraficoRegioes() {
             />
             <Tooltip
               cursor={{ fill: "rgba(26, 115, 232, 0.08)" }}
+              reverseDirection={{ x: true, y: false }}
+              offset={12}
               content={<AreaCidades aoRegiao={setRegiaoAtiva} />}
             />
             <Bar dataKey="votos" fill="#1a73e8" radius={[0, 6, 6, 0]} isAnimationActive={false}>

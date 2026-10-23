@@ -96,12 +96,14 @@ export default function TabelaCidades() {
                 ordenacao={ordenacao}
                 aoOrdenar={aoOrdenar}
                 centro
+                className="text-xs! whitespace-nowrap"
               />
               <ThOrdenavel
                 campo="regiao"
                 rotulo="Região"
                 ordenacao={ordenacao}
                 centro
+                className="text-xs! whitespace-nowrap"
               />
               <ThOrdenavel
                 campo="votos"
@@ -109,6 +111,7 @@ export default function TabelaCidades() {
                 ordenacao={ordenacao}
                 aoOrdenar={aoOrdenar}
                 centro
+                className="text-xs! whitespace-nowrap"
               />
             </tr>
           </thead>

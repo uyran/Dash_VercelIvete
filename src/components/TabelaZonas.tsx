@@ -33,6 +33,9 @@ function Resumo({ rotulo, valor }: { rotulo: string; valor: string }) {
   );
 }
 
+/** Largura a partir da qual os botões de zona passam a duas colunas (breakpoint sm). */
+const LARGURA_CELULAR = 640;
+
 const botaoZona = [
   "shrink-0 rounded-lg border-2 px-2.5 py-2 text-xs font-bold transition-all",
   "outline-none focus-visible:ring-2 focus-visible:ring-google-blue-500 focus-visible:ring-offset-2",
@@ -51,19 +54,28 @@ export default function TabelaZonas() {
   useLayoutEffect(() => {
     const grupo = grupoZonasRef.current;
     if (!grupo) return;
-    const botoes = Array.from(grupo.querySelectorAll<HTMLButtonElement>("button"));
-    botoes.forEach((b) => {
-      b.style.width = "";
-    });
-    if (botoes.length < 2) {
-      setLarguraZona(null);
-      return;
-    }
-    const maior = Math.max(...botoes.map((b) => b.offsetWidth));
-    botoes.forEach((b) => {
-      b.style.width = `${maior}px`;
-    });
-    setLarguraZona(maior);
+
+    const ajustar = () => {
+      const botoes = Array.from(grupo.querySelectorAll<HTMLButtonElement>("button"));
+      botoes.forEach((b) => {
+        b.style.width = "";
+      });
+      if (botoes.length < 2) {
+        setLarguraZona(null);
+        return;
+      }
+      const maior = Math.max(...botoes.map((b) => b.offsetWidth));
+      const emCelular = grupo.clientWidth > 0 && grupo.clientWidth < LARGURA_CELULAR;
+      const largura = emCelular ? Math.floor((grupo.clientWidth - 10) / 2) : maior;
+      botoes.forEach((b) => {
+        b.style.width = `${largura}px`;
+      });
+      setLarguraZona(largura);
+    };
+
+    ajustar();
+    window.addEventListener("resize", ajustar);
+    return () => window.removeEventListener("resize", ajustar);
   }, [cidade, info.zonas]);
 
   const zonaAtiva = useMemo(() => {
@@ -189,7 +201,7 @@ export default function TabelaZonas() {
               />
               <ThOrdenavel
                 campo="endereco"
-                rotulo="Endereço"
+                rotulo="End."
                 ordenacao={ordenacao}
                 aoOrdenar={aoOrdenar}
                 centro
